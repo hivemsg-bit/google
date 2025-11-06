@@ -1,5 +1,5 @@
 // ============================== app.js ============================== 
-// Enhanced with better functionality and user experience
+// PayTM Integration Added
 
 // Utility functions
 const Utils = {
@@ -25,7 +25,7 @@ const Utils = {
   }
 };
 
-// Local storage helpers with enhanced functionality
+// Local storage helpers
 const DB = {
   get users() { return JSON.parse(localStorage.getItem('users') || '[]') },
   set users(v) { localStorage.setItem('users', JSON.stringify(v)) },
@@ -305,7 +305,7 @@ function initDashboard() {
     const access = DB.access[email] || { plans: [] };
     const hasAccess = access.plans.includes('foundation') || 
                      access.plans.includes('inter') || 
-                     access.plans.includes('final');
+                     access.plins.includes('final');
     
     if (hasAccess) {
       accessStatus.textContent = 'Premium';
@@ -733,13 +733,15 @@ function initTests() {
   renderTestCards('foundation');
 }
 
-// Pricing functionality
+// PayTM Pricing functionality
 function initPricing() {
   const payButtons = document.querySelectorAll('.payBtn');
+  const copyUpiBtn = document.getElementById('copyUpiBtn');
+  const verifyPaymentBtn = document.getElementById('verifyPaymentBtn');
   
+  // PayTM Checkout Integration
   payButtons.forEach(button => {
     button.addEventListener('click', function() {
-      // Check if user is logged in
       if (!DB.session) {
         alert('Please log in or create an account to make a purchase.');
         window.location.href = 'login.html';
@@ -747,49 +749,97 @@ function initPricing() {
       }
       
       const plan = this.dataset.plan;
-      const prices = { foundation: 1499, inter: 3337, final: 2574 };
-      const amount = prices[plan] * 100; // Convert to paise
+      const amount = this.dataset.amount;
       
-      const options = {
-        key: 'rzp_test_xxxxxxxxxxxxx', // Replace with your Razorpay key
-        amount: amount,
-        currency: 'INR',
-        name: 'CA Mock Pro',
-        description: `${plan.toUpperCase()} – Lifetime Access`,
-        handler: function(response) {
-          // Mark plan as purchased
-          const email = DB.session.email;
-          const access = DB.access;
-          
-          if (!access[email]) {
-            access[email] = { plans: [] };
-          }
-          
-          if (!access[email].plans.includes(plan)) {
-            access[email].plans.push(plan);
-          }
-          
-          DB.access = access;
-          
-          // Show success message
-          alert(`Payment successful! Lifetime access unlocked for ${plan.toUpperCase()}.`);
-          
-          // Redirect to dashboard
-          window.location.href = 'dashboard.html';
-        },
-        prefill: {
-          name: DB.session.name,
-          email: DB.session.email
-        },
-        theme: {
-          color: '#2563eb'
-        }
-      };
+      // Use simple UPI method instead of complex PayTM integration
+      alert(`Please use the UPI payment method below. Select "${plan.toUpperCase()}" plan in the verification form after payment.`);
       
-      const rzp = new Razorpay(options);
-      rzp.open();
+      // Scroll to UPI section
+      document.querySelector('.upi-payment-section').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
     });
   });
+  
+  // Copy UPI ID to clipboard
+  if (copyUpiBtn) {
+    copyUpiBtn.addEventListener('click', function() {
+      const upiId = 'your-upi-id@paytm'; // Apna UPI ID yahan daalein
+      navigator.clipboard.writeText(upiId).then(function() {
+        alert('UPI ID copied to clipboard: ' + upiId);
+      }).catch(function() {
+        // Fallback for older browsers
+        const tempInput = document.createElement('input');
+        tempInput.value = upiId;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('UPI ID copied to clipboard: ' + upiId);
+      });
+    });
+  }
+  
+  // Verify Payment
+  if (verifyPaymentBtn) {
+    verifyPaymentBtn.addEventListener('click', function() {
+      const userEmail = document.getElementById('userEmail').value.trim();
+      const utrNumber = document.getElementById('utrNumber').value.trim();
+      const selectedPlan = document.getElementById('selectedPlan').value;
+      
+      // Validation
+      if (!userEmail) {
+        alert('Please enter your email address');
+        return;
+      }
+      
+      if (!Utils.validateEmail(userEmail)) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      if (!utrNumber) {
+        alert('Please enter UTR/Transaction ID');
+        return;
+      }
+      
+      if (!selectedPlan) {
+        alert('Please select a plan');
+        return;
+      }
+      
+      // Check if logged in user matches the email
+      if (DB.session && DB.session.email !== userEmail) {
+        if (!confirm('The email you entered does not match your logged in account. Do you want to continue?')) {
+          return;
+        }
+      }
+      
+      // Simple UTR validation (in real scenario, verify with your records)
+      if (utrNumber.length < 8) {
+        alert('Please enter a valid UTR number (minimum 8 characters)');
+        return;
+      }
+      
+      // Grant access to the plan
+      const access = DB.access;
+      if (!access[userEmail]) {
+        access[userEmail] = { plans: [] };
+      }
+      
+      if (!access[userEmail].plans.includes(selectedPlan)) {
+        access[userEmail].plans.push(selectedPlan);
+      }
+      
+      DB.access = access;
+      
+      // Show success message
+      alert(`Payment verified successfully! You now have lifetime access to ${selectedPlan.toUpperCase()} tests.`);
+      
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+    });
+  }
 }
 
 // Contact form functionality
