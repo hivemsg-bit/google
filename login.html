@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login • CA Mock</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="index.html">CA Mock</a>
+    </div>
+  </header>
+
+  <section class="auth container narrow">
+    <div class="card">
+      <h2>Welcome back</h2>
+      <form id="loginForm" class="stack">
+        <label>Email
+          <input type="email" id="loginEmail" required placeholder="you@example.com" />
+        </label>
+        <label>Password
+          <input type="password" id="loginPass" required placeholder="••••••••" />
+        </label>
+        <button class="btn" type="submit">Login</button>
+        <p class="muted">New here? <a href="#" id="gotoSignup">Create an account</a></p>
+      </form>
+    </div>
+
+    <div class="card hidden" id="signupCard">
+      <h2>Create your account</h2>
+      <form id="signupForm" class="stack">
+        <label>Full Name
+          <input type="text" id="suName" required />
+        </label>
+        <label>Email
+          <input type="email" id="suEmail" required />
+        </label>
+        <label>Password
+          <input type="password" id="suPass" required minlength="6" />
+        </label>
+        <button class="btn" type="submit">Sign up</button>
+      </form>
+    </div>
+  </section>
+</body>
+</html>
