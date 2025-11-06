@@ -1,145 +1,819 @@
-<script>
-// Simple year footnote
-window.addEventListener('DOMContentLoaded',()=>{const y=document.getElementById('yr');if(y) y.textContent=new Date().getFullYear();});
+// ============================== app.js ============================== 
+// Enhanced with better functionality and user experience
 
-// Local storage helpers
-const DB={
-  get users(){return JSON.parse(localStorage.getItem('users')||'[]')},
-  set users(v){localStorage.setItem('users',JSON.stringify(v))},
-  get session(){return JSON.parse(localStorage.getItem('session')||'null')},
-  set session(v){localStorage.setItem('session',JSON.stringify(v))},
-  get access(){return JSON.parse(localStorage.getItem('access')||'{}')},
-  set access(v){localStorage.setItem('access',JSON.stringify(v))},
-  saveScore(testId,score,detail){const key='scores:'+ (DB.session?.email||'guest');const old=JSON.parse(localStorage.getItem(key)||'[]');old.push({id:testId,score,when:Date.now(),detail});localStorage.setItem(key,JSON.stringify(old));},
-  getScores(){const key='scores:'+ (DB.session?.email||'guest');return JSON.parse(localStorage.getItem(key)||'[]');}
+// Utility functions
+const Utils = {
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  },
+  
+  showError(element, message) {
+    element.textContent = message;
+    element.classList.add('show');
+  },
+  
+  hideError(element) {
+    element.textContent = '';
+    element.classList.remove('show');
+  },
+  
+  validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
 };
 
-// Auth UI wiring (login.html)
-(function(){
-  const f=document.getElementById('loginForm');
-  const s=document.getElementById('signupForm');
-  const sc=document.getElementById('signupCard');
-  const goto=document.getElementById('gotoSignup');
-  if(goto&&sc){goto.addEventListener('click',e=>{e.preventDefault();sc.classList.remove('hidden');});}
-  if(f){f.addEventListener('submit',e=>{e.preventDefault();const email=loginEmail.value.trim().toLowerCase();const pass=loginPass.value;const u=DB.users.find(x=>x.email===email&&x.pass===pass);if(!u){alert('Invalid credentials');return;}DB.session={email:u.email,name:u.name};location.href='dashboard.html';});}
-  if(s){s.addEventListener('submit',e=>{e.preventDefault();const name=suName.value.trim();const email=suEmail.value.trim().toLowerCase();const pass=suPass.value;const users=DB.users;if(users.some(x=>x.email===email)){alert('Email already registered');return;}users.push({name,email,pass});DB.users=users;DB.session={email,name};location.href='dashboard.html';});}
-})();
-
-// Navbar Login/Logout buttons
-(function(){
- const btn=document.getElementById('navAuthBtn');
- const logout=document.getElementById('logoutBtn');
- if(btn){btn.textContent = DB.session? 'Dashboard' : 'Login'; btn.href = DB.session? 'dashboard.html' : 'login.html';}
- if(logout){logout.addEventListener('click',()=>{DB.session=null;location.href='index.html';});}
-})();
-
-// Dashboard rendering
-(function(){
-  const nm=document.getElementById('userName');
-  const st=document.getElementById('accessStatus');
-  const note=document.getElementById('accessNote');
-  const ul=document.getElementById('scoreList');
-  if(nm){nm.textContent=DB.session?.name||'Student';}
-  if(st){const acc=DB.access[DB.session?.email||'']||{plans:[]};const has=acc.plans?.includes('foundation')||acc.plans?.includes('inter')||acc.plans?.includes('final');st.textContent=has? 'Lifetime (Active)' : 'Free'; if(has&&note) note.textContent='You own lifetime access. Start tests from the Tests page.'}
-  if(ul){const scores=DB.getScores();ul.innerHTML = scores.length? scores.map(s=>`<li><strong>${s.id}</strong> — ${s.score}% on ${new Date(s.when).toLocaleString()}</li>`).join('') : '<li class="muted">No attempts yet.</li>';}
-})();
-
-// Tests page: tabs + list + runner
-(function(){
-  const list=document.getElementById('testList');
-  const runner=document.getElementById('testRunner');
-  const qBox=document.getElementById('qBox');
-  const resultBox=document.getElementById('resultBox');
-  const submit=document.getElementById('submitTest');
-  const reset=document.getElementById('resetTest');
-  const tabs=document.querySelectorAll('.tab');
-  if(!list) return;
-  let currentTest=null;
-
-  function renderCards(level){
-    const bank=(window.QUESTION_BANK||{})[level]||[];
-    list.innerHTML = bank.map((t,i)=>`
-      <div class="card">
-        <h3>${t.title}</h3>
-        <p class="muted">${t.questions.length} Questions • ${t.negative? 'Negative marking on' : 'No negative'}</p>
-        <button class="btn" data-i="${i}" data-level="${level}">Start</button>
-      </div>`).join('');
-    list.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>start(level,parseInt(b.dataset.i))));
+// Local storage helpers with enhanced functionality
+const DB = {
+  get users() { return JSON.parse(localStorage.getItem('users') || '[]') },
+  set users(v) { localStorage.setItem('users', JSON.stringify(v)) },
+  
+  get session() { return JSON.parse(localStorage.getItem('session') || 'null') },
+  set session(v) { localStorage.setItem('session', JSON.stringify(v)) },
+  
+  get access() { return JSON.parse(localStorage.getItem('access') || '{}') },
+  set access(v) { localStorage.setItem('access', JSON.stringify(v)) },
+  
+  saveScore(testId, score, detail, timeSpent) {
+    const key = 'scores:' + (DB.session?.email || 'guest');
+    const old = JSON.parse(localStorage.getItem(key) || '[]');
+    old.push({
+      id: testId,
+      score,
+      when: Date.now(),
+      detail,
+      timeSpent,
+      totalQuestions: detail.length
+    });
+    localStorage.setItem(key, JSON.stringify(old));
+  },
+  
+  getScores() {
+    const key = 'scores:' + (DB.session?.email || 'guest');
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  },
+  
+  getAverageScore() {
+    const scores = this.getScores();
+    if (scores.length === 0) return 0;
+    const total = scores.reduce((sum, score) => sum + score.score, 0);
+    return Math.round(total / scores.length);
   }
+};
 
-  function start(level,idx){
-    // access check
-    const email=DB.session?.email||'';
-    const acc=DB.access[email]||{plans:[]};
-    const openDemo = level==='foundation';
-    const allowed = openDemo || acc.plans.includes(level) || acc.plans.includes('inter') && (level==='inter') || acc.plans.includes('final') && (level==='final');
-    if(!allowed){alert('Please purchase the plan to unlock this level.');location.href='pricing.html';return;}
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Set current year in footer
+  const yearElement = document.getElementById('yr');
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
+  
+  // Initialize mobile menu
+  initMobileMenu();
+  
+  // Initialize authentication
+  initAuth();
+  
+  // Initialize dashboard if on dashboard page
+  if (document.querySelector('.dashboard')) {
+    initDashboard();
+  }
+  
+  // Initialize tests if on tests page
+  if (document.getElementById('testList')) {
+    initTests();
+  }
+  
+  // Initialize pricing if on pricing page
+  if (document.querySelector('.pricing-page')) {
+    initPricing();
+  }
+  
+  // Initialize contact form if on contact page
+  if (document.getElementById('contactForm')) {
+    initContact();
+  }
+});
 
-    currentTest = (window.QUESTION_BANK[level]||[])[idx];
-    if(!currentTest) return;
-    runner.classList.remove('hidden');
-    document.getElementById('testTitle').textContent=currentTest.title;
-    document.getElementById('testInfo').textContent=`${currentTest.questions.length} Questions • 1 mark each`;
-    qBox.innerHTML = currentTest.questions.map((q,qi)=>{
-      const opts=q.options.map((op,oi)=>`<label><input type="radio" name="q${qi}" value="${oi}"> ${op}</label>`).join('');
-      return `<div class="test-q"><div><strong>Q${qi+1}.</strong> ${q.text}</div><div class="opts">${opts}</div></div>`;
+// Mobile menu functionality
+function initMobileMenu() {
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mainNav = document.querySelector('.main-nav');
+  
+  if (mobileMenuBtn && mainNav) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mainNav.classList.toggle('open');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!mainNav.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+        mainNav.classList.remove('open');
+      }
+    });
+  }
+}
+
+// Authentication system
+function initAuth() {
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const signupCard = document.getElementById('signupCard');
+  const loginCard = document.getElementById('loginCard');
+  const gotoSignup = document.getElementById('gotoSignup');
+  const gotoLogin = document.getElementById('gotoLogin');
+  
+  // Toggle between login and signup forms
+  if (gotoSignup && signupCard) {
+    gotoSignup.addEventListener('click', function(e) {
+      e.preventDefault();
+      loginCard.classList.add('hidden');
+      signupCard.classList.remove('hidden');
+    });
+  }
+  
+  if (gotoLogin && loginCard) {
+    gotoLogin.addEventListener('click', function(e) {
+      e.preventDefault();
+      signupCard.classList.add('hidden');
+      loginCard.classList.remove('hidden');
+    });
+  }
+  
+  // Login form submission
+  if (loginForm) {
+    const emailError = document.getElementById('loginEmailError');
+    const passError = document.getElementById('loginPassError');
+    
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPass').value;
+      
+      // Reset errors
+      Utils.hideError(emailError);
+      Utils.hideError(passError);
+      
+      // Validate inputs
+      let isValid = true;
+      
+      if (!email) {
+        Utils.showError(emailError, 'Email is required');
+        isValid = false;
+      } else if (!Utils.validateEmail(email)) {
+        Utils.showError(emailError, 'Please enter a valid email address');
+        isValid = false;
+      }
+      
+      if (!password) {
+        Utils.showError(passError, 'Password is required');
+        isValid = false;
+      }
+      
+      if (!isValid) return;
+      
+      // Check credentials
+      const users = DB.users;
+      const user = users.find(u => u.email === email && u.pass === password);
+      
+      if (!user) {
+        Utils.showError(passError, 'Invalid email or password');
+        return;
+      }
+      
+      // Create session
+      DB.session = { email: user.email, name: user.name };
+      
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+    });
+  }
+  
+  // Signup form submission
+  if (signupForm) {
+    const nameError = document.getElementById('suNameError');
+    const emailError = document.getElementById('suEmailError');
+    const passError = document.getElementById('suPassError');
+    
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('suName').value.trim();
+      const email = document.getElementById('suEmail').value.trim().toLowerCase();
+      const password = document.getElementById('suPass').value;
+      
+      // Reset errors
+      Utils.hideError(nameError);
+      Utils.hideError(emailError);
+      Utils.hideError(passError);
+      
+      // Validate inputs
+      let isValid = true;
+      
+      if (!name) {
+        Utils.showError(nameError, 'Full name is required');
+        isValid = false;
+      }
+      
+      if (!email) {
+        Utils.showError(emailError, 'Email is required');
+        isValid = false;
+      } else if (!Utils.validateEmail(email)) {
+        Utils.showError(emailError, 'Please enter a valid email address');
+        isValid = false;
+      }
+      
+      if (!password) {
+        Utils.showError(passError, 'Password is required');
+        isValid = false;
+      } else if (password.length < 6) {
+        Utils.showError(passError, 'Password must be at least 6 characters');
+        isValid = false;
+      }
+      
+      if (!isValid) return;
+      
+      // Check if user already exists
+      const users = DB.users;
+      if (users.some(u => u.email === email)) {
+        Utils.showError(emailError, 'Email already registered');
+        return;
+      }
+      
+      // Create new user
+      users.push({ name, email, pass: password });
+      DB.users = users;
+      
+      // Create session
+      DB.session = { email, name };
+      
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+    });
+  }
+  
+  // Update navigation based on auth status
+  updateNavigation();
+}
+
+// Update navigation based on authentication status
+function updateNavigation() {
+  const authBtn = document.getElementById('navAuthBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  if (authBtn) {
+    if (DB.session) {
+      authBtn.textContent = 'Dashboard';
+      authBtn.href = 'dashboard.html';
+      authBtn.innerHTML = '<i class="fas fa-user"></i>Dashboard';
+    } else {
+      authBtn.textContent = 'Login';
+      authBtn.href = 'login.html';
+      authBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>Login';
+    }
+  }
+  
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      DB.session = null;
+      window.location.href = 'index.html';
+    });
+  }
+}
+
+// Dashboard functionality
+function initDashboard() {
+  const userName = document.getElementById('userName');
+  const accessStatus = document.getElementById('accessStatus');
+  const accessNote = document.getElementById('accessNote');
+  const scoreList = document.getElementById('scoreList');
+  const avgScore = document.getElementById('avgScore');
+  const testsTaken = document.getElementById('testsTaken');
+  
+  // Set user name
+  if (userName) {
+    userName.textContent = DB.session?.name || 'Student';
+  }
+  
+  // Set access status
+  if (accessStatus && accessNote) {
+    const email = DB.session?.email || '';
+    const access = DB.access[email] || { plans: [] };
+    const hasAccess = access.plans.includes('foundation') || 
+                     access.plans.includes('inter') || 
+                     access.plans.includes('final');
+    
+    if (hasAccess) {
+      accessStatus.textContent = 'Premium';
+      accessStatus.style.background = '#10b981';
+      accessNote.textContent = 'You have lifetime access to all purchased tests.';
+    } else {
+      accessStatus.textContent = 'Free';
+      accessStatus.style.background = '#6b7280';
+      accessNote.textContent = 'Upgrade to unlock all tests with lifetime access.';
+    }
+  }
+  
+  // Display scores
+  if (scoreList) {
+    const scores = DB.getScores();
+    
+    if (scores.length === 0) {
+      scoreList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <p>No test attempts yet</p>
+          <a href="tests.html" class="btn btn-primary">Take Your First Test</a>
+        </div>
+      `;
+    } else {
+      scoreList.innerHTML = scores
+        .slice(-5) // Show last 5 attempts
+        .reverse() // Most recent first
+        .map(score => `
+          <div class="score-item">
+            <div class="score-header">
+              <strong>${score.id}</strong>
+              <span class="score-value ${score.score >= 70 ? 'score-high' : score.score >= 50 ? 'score-medium' : 'score-low'}">
+                ${score.score}%
+              </span>
+            </div>
+            <div class="score-details">
+              <span>${new Date(score.when).toLocaleDateString()}</span>
+              <span>${score.timeSpent ? 'Time: ' + Utils.formatTime(score.timeSpent) : ''}</span>
+              <span>${score.totalQuestions} questions</span>
+            </div>
+          </div>
+        `)
+        .join('');
+    }
+  }
+  
+  // Set performance metrics
+  if (avgScore) {
+    avgScore.textContent = DB.getAverageScore() + '%';
+  }
+  
+  if (testsTaken) {
+    const scores = DB.getScores();
+    testsTaken.textContent = scores.length;
+  }
+}
+
+// Tests functionality
+function initTests() {
+  const testList = document.getElementById('testList');
+  const testRunner = document.getElementById('testRunner');
+  const tabs = document.querySelectorAll('.tab');
+  
+  if (!testList) return;
+  
+  let currentTest = null;
+  let currentQuestionIndex = 0;
+  let userAnswers = [];
+  let timerInterval = null;
+  let timeSpent = 0;
+  let markedQuestions = new Set();
+  
+  // Render test cards based on selected level
+  function renderTestCards(level) {
+    const questionBank = window.QUESTION_BANK || {};
+    const tests = questionBank[level] || [];
+    
+    if (tests.length === 0) {
+      testList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-book"></i>
+          <p>No tests available for ${level}</p>
+          <p class="small muted">Check back later for new tests</p>
+        </div>
+      `;
+      return;
+    }
+    
+    testList.innerHTML = tests.map((test, index) => {
+      const isDemo = level === 'foundation';
+      const isUnlocked = checkTestAccess(level);
+      
+      return `
+        <div class="card card-elevated test-card ${!isUnlocked && !isDemo ? 'locked' : ''}">
+          ${!isUnlocked && !isDemo ? '<div class="lock-overlay"><i class="fas fa-lock"></i></div>' : ''}
+          <h3>${test.title}</h3>
+          <p class="muted">${test.questions.length} Questions • ${test.negative ? 'With negative marking' : 'No negative marking'}</p>
+          <div class="test-card-actions">
+            <button class="btn ${isUnlocked || isDemo ? 'btn-primary' : 'btn-outline'}" 
+                    data-level="${level}" 
+                    data-index="${index}"
+                    ${!isUnlocked && !isDemo ? 'disabled' : ''}>
+              ${isUnlocked || isDemo ? 'Start Test' : 'Locked'}
+            </button>
+            ${!isUnlocked && !isDemo ? 
+              `<a href="pricing.html" class="btn btn-sm btn-outline">Unlock</a>` : 
+              ''
+            }
+          </div>
+        </div>
+      `;
     }).join('');
-    resultBox.classList.add('hidden');
-  }
-
-  function evaluate(){
-    if(!currentTest) return;
-    let correct=0; const det=[];
-    currentTest.questions.forEach((q,qi)=>{
-      const sel=[...document.querySelectorAll(`input[name=q${qi}]`)].find(r=>r.checked);
-      const ans=sel? parseInt(sel.value) : -1;
-      const ok=ans===q.answer;
-      if(ok) correct++;
-      det.push({q:qi+1, your:ans, correct:q.answer});
+    
+    // Add event listeners to test buttons
+    testList.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function() {
+        const level = this.dataset.level;
+        const index = parseInt(this.dataset.index);
+        startTest(level, index);
+      });
     });
-    const pct = Math.round((correct/currentTest.questions.length)*100);
-    DB.saveScore(currentTest.title,pct,det);
+  }
+  
+  // Check if user has access to a test level
+  function checkTestAccess(level) {
+    if (!DB.session) return false;
+    
+    const email = DB.session.email;
+    const access = DB.access[email] || { plans: [] };
+    
+    // Foundation is always available as demo
+    if (level === 'foundation') return true;
+    
+    // Check if user has access to the level
+    return access.plans.includes(level);
+  }
+  
+  // Start a test
+  function startTest(level, testIndex) {
+    // Check authentication
+    if (!DB.session) {
+      alert('Please log in to take tests');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Check access
+    const hasAccess = checkTestAccess(level);
+    if (!hasAccess && level !== 'foundation') {
+      alert('Please purchase the plan to unlock this level.');
+      window.location.href = 'pricing.html';
+      return;
+    }
+    
+    const questionBank = window.QUESTION_BANK || {};
+    const tests = questionBank[level] || [];
+    currentTest = tests[testIndex];
+    
+    if (!currentTest) return;
+    
+    // Initialize test state
+    currentQuestionIndex = 0;
+    userAnswers = new Array(currentTest.questions.length).fill(null);
+    markedQuestions = new Set();
+    timeSpent = 0;
+    
+    // Show test runner
+    testRunner.classList.remove('hidden');
+    
+    // Scroll to test runner
+    testRunner.scrollIntoView({ behavior: 'smooth' });
+    
+    // Update test info
+    document.getElementById('testTitle').textContent = currentTest.title;
+    document.getElementById('testInfo').textContent = 
+      `${currentTest.questions.length} Questions • 1 mark each • ${currentTest.negative ? 'With negative marking' : 'No negative marking'}`;
+    
+    // Start timer
+    startTimer();
+    
+    // Render first question
+    renderQuestion(0);
+  }
+  
+  // Start the test timer
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    timerInterval = setInterval(function() {
+      timeSpent++;
+      document.getElementById('timer').textContent = Utils.formatTime(timeSpent);
+    }, 1000);
+  }
+  
+  // Render a question
+  function renderQuestion(index) {
+    if (!currentTest || index < 0 || index >= currentTest.questions.length) return;
+    
+    currentQuestionIndex = index;
+    const question = currentTest.questions[index];
+    
+    // Update progress
+    const progress = ((index + 1) / currentTest.questions.length) * 100;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+    document.getElementById('currentQ').textContent = index + 1;
+    document.getElementById('totalQ').textContent = currentTest.questions.length;
+    
+    // Render question
+    const qBox = document.getElementById('qBox');
+    qBox.innerHTML = `
+      <div class="test-q">
+        <div class="question-text">
+          <strong>Q${index + 1}.</strong> ${question.text}
+        </div>
+        <div class="opts">
+          ${question.options.map((option, optIndex) => `
+            <input type="radio" id="q${index}_opt${optIndex}" name="q${index}" value="${optIndex}" 
+                   ${userAnswers[index] === optIndex ? 'checked' : ''}>
+            <label for="q${index}_opt${optIndex}">
+              <span class="option-letter">${String.fromCharCode(65 + optIndex)}</span>
+              <span class="option-text">${option}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    
+    // Add event listeners to options
+    qBox.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        userAnswers[index] = parseInt(this.value);
+        updateNavigationButtons();
+      });
+    });
+    
+    // Update navigation buttons
+    updateNavigationButtons();
+    
+    // Update mark review button
+    const markReviewBtn = document.getElementById('markReview');
+    if (markedQuestions.has(index)) {
+      markReviewBtn.innerHTML = '<i class="fas fa-bookmark"></i>Unmark Review';
+      markReviewBtn.classList.add('btn-primary');
+    } else {
+      markReviewBtn.innerHTML = '<i class="far fa-bookmark"></i>Mark for Review';
+      markReviewBtn.classList.remove('btn-primary');
+    }
+  }
+  
+  // Update navigation buttons state
+  function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prevQ');
+    const nextBtn = document.getElementById('nextQ');
+    
+    // Previous button
+    prevBtn.disabled = currentQuestionIndex === 0;
+    
+    // Next button
+    nextBtn.disabled = currentQuestionIndex === currentTest.questions.length - 1;
+  }
+  
+  // Navigation event listeners
+  document.getElementById('prevQ')?.addEventListener('click', function() {
+    if (currentQuestionIndex > 0) {
+      renderQuestion(currentQuestionIndex - 1);
+    }
+  });
+  
+  document.getElementById('nextQ')?.addEventListener('click', function() {
+    if (currentQuestionIndex < currentTest.questions.length - 1) {
+      renderQuestion(currentQuestionIndex + 1);
+    }
+  });
+  
+  document.getElementById('markReview')?.addEventListener('click', function() {
+    if (markedQuestions.has(currentQuestionIndex)) {
+      markedQuestions.delete(currentQuestionIndex);
+      this.innerHTML = '<i class="far fa-bookmark"></i>Mark for Review';
+      this.classList.remove('btn-primary');
+    } else {
+      markedQuestions.add(currentQuestionIndex);
+      this.innerHTML = '<i class="fas fa-bookmark"></i>Unmark Review';
+      this.classList.add('btn-primary');
+    }
+  });
+  
+  // Submit test
+  document.getElementById('submitTest')?.addEventListener('click', function() {
+    if (confirm('Are you sure you want to submit the test? You cannot change answers after submission.')) {
+      evaluateTest();
+    }
+  });
+  
+  // Reset test
+  document.getElementById('resetTest')?.addEventListener('click', function() {
+    if (confirm('Are you sure you want to reset the test? All your answers will be lost.')) {
+      userAnswers = new Array(currentTest.questions.length).fill(null);
+      markedQuestions = new Set();
+      renderQuestion(0);
+    }
+  });
+  
+  // Evaluate test and show results
+  function evaluateTest() {
+    if (!currentTest) return;
+    
+    // Stop timer
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    let correctAnswers = 0;
+    let totalMarks = 0;
+    const details = [];
+    
+    currentTest.questions.forEach((question, index) => {
+      const userAnswer = userAnswers[index];
+      const isCorrect = userAnswer === question.answer;
+      
+      if (isCorrect) {
+        correctAnswers++;
+        totalMarks++;
+      } else if (currentTest.negative && userAnswer !== null && userAnswer !== question.answer) {
+        // Apply negative marking if enabled
+        totalMarks -= 0.25;
+      }
+      
+      details.push({
+        question: index + 1,
+        userAnswer,
+        correctAnswer: question.answer,
+        isCorrect
+      });
+    });
+    
+    // Calculate percentage (ensure it doesn't go below 0)
+    const percentage = Math.max(0, (totalMarks / currentTest.questions.length) * 100);
+    const roundedPercentage = Math.round(percentage);
+    
+    // Save score
+    DB.saveScore(currentTest.title, roundedPercentage, details, timeSpent);
+    
+    // Display results
+    const resultBox = document.getElementById('resultBox');
     resultBox.classList.remove('hidden');
-    resultBox.innerHTML = `<div class="card"><h3>Score: ${pct}%</h3><p>${correct} / ${currentTest.questions.length} correct.</p><details><summary>Review answers</summary><ol>` + det.map(d=>`<li>Q${d.q}: You → ${d.your+1||'-'} | Correct → ${d.correct+1}</li>`).join('') + `</ol></details></div>`;
-    alert('Result saved to your dashboard.');
-  }
-
-  submit?.addEventListener('click',evaluate);
-  reset?.addEventListener('click',()=>{document.querySelectorAll('#qBox input[type=radio]').forEach(r=>r.checked=false);resultBox.classList.add('hidden');});
-
-  tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');renderCards(t.dataset.tab);}));
-  renderCards('foundation');
-})();
-
-// Pricing: Razorpay checkout (front-end demo)
-(function(){
-  const buttons=document.querySelectorAll('.payBtn');
-  if(!buttons.length) return;
-  const PRICES={ foundation:1500, inter:3337, final:2574 };
-  buttons.forEach(btn=>btn.addEventListener('click',()=>{
-    if(!DB.session){alert('Please login or create an account first.');location.href='login.html';return;}
-    const plan=btn.dataset.plan; const amount=PRICES[plan]*100; // paise
-    const rzp=new Razorpay({
-      key: 'rzp_test_xxxxxxxxxxxxx', // TODO: replace with your Razorpay key
-      amount, currency:'INR', name:'CA Mock Test Series', description:`${plan} – lifetime`,
-      handler:function (resp){
-        // Mark plan as purchased (lifetime)
-        const email=DB.session.email; const acc=DB.access; if(!acc[email]) acc[email]={plans:[]};
-        if(!acc[email].plans.includes(plan)) acc[email].plans.push(plan);
-        DB.access=acc;
-        alert('Payment successful! Lifetime access unlocked for: '+plan.toUpperCase());
-        location.href='dashboard.html';
-      },
-      prefill:{name:DB.session.name,email:DB.session.email},
-      theme:{color:'#004aad'}
+    
+    resultBox.innerHTML = `
+      <div class="card card-elevated">
+        <div class="result-header">
+          <h3>Test Results</h3>
+          <div class="result-score ${roundedPercentage >= 70 ? 'score-high' : roundedPercentage >= 50 ? 'score-medium' : 'score-low'}">
+            ${roundedPercentage}%
+          </div>
+        </div>
+        
+        <div class="result-stats">
+          <div class="stat">
+            <div class="stat-value">${correctAnswers}/${currentTest.questions.length}</div>
+            <div class="stat-label">Correct Answers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${Utils.formatTime(timeSpent)}</div>
+            <div class="stat-label">Time Taken</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${markedQuestions.size}</div>
+            <div class="stat-label">Marked for Review</div>
+          </div>
+        </div>
+        
+        <details class="result-details">
+          <summary>View Detailed Results</summary>
+          <div class="details-list">
+            ${details.map(detail => `
+              <div class="detail-item ${detail.isCorrect ? 'correct' : 'incorrect'}">
+                <div class="detail-question">Q${detail.question}</div>
+                <div class="detail-answer">
+                  Your Answer: <strong>${detail.userAnswer !== null ? String.fromCharCode(65 + detail.userAnswer) : 'Not attempted'}</strong>
+                </div>
+                <div class="detail-answer">
+                  Correct Answer: <strong>${String.fromCharCode(65 + detail.correctAnswer)}</strong>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </details>
+        
+        <div class="result-actions">
+          <button class="btn btn-outline" id="retakeTest">
+            <i class="fas fa-redo"></i>Retake Test
+          </button>
+          <a href="dashboard.html" class="btn btn-primary">
+            <i class="fas fa-chart-line"></i>View Dashboard
+          </a>
+        </div>
+      </div>
+    `;
+    
+    // Add event listener for retake test button
+    resultBox.querySelector('#retakeTest')?.addEventListener('click', function() {
+      userAnswers = new Array(currentTest.questions.length).fill(null);
+      markedQuestions = new Set();
+      timeSpent = 0;
+      resultBox.classList.add('hidden');
+      startTimer();
+      renderQuestion(0);
     });
-    rzp.open();
-  }));
-})();
+    
+    // Scroll to results
+    resultBox.scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  // Tab switching
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      renderTestCards(this.dataset.tab);
+    });
+  });
+  
+  // Initialize with foundation tests
+  renderTestCards('foundation');
+}
 
-// Contact form (demo only)
-(function(){
-  const f=document.getElementById('contactForm');
-  if(!f) return; f.addEventListener('submit',e=>{e.preventDefault(); alert('Thanks! We will reply on email.'); f.reset();});
-})();
-</script>
+// Pricing functionality
+function initPricing() {
+  const payButtons = document.querySelectorAll('.payBtn');
+  
+  payButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Check if user is logged in
+      if (!DB.session) {
+        alert('Please log in or create an account to make a purchase.');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      const plan = this.dataset.plan;
+      const prices = { foundation: 1499, inter: 3337, final: 2574 };
+      const amount = prices[plan] * 100; // Convert to paise
+      
+      const options = {
+        key: 'rzp_test_xxxxxxxxxxxxx', // Replace with your Razorpay key
+        amount: amount,
+        currency: 'INR',
+        name: 'CA Mock Pro',
+        description: `${plan.toUpperCase()} – Lifetime Access`,
+        handler: function(response) {
+          // Mark plan as purchased
+          const email = DB.session.email;
+          const access = DB.access;
+          
+          if (!access[email]) {
+            access[email] = { plans: [] };
+          }
+          
+          if (!access[email].plans.includes(plan)) {
+            access[email].plans.push(plan);
+          }
+          
+          DB.access = access;
+          
+          // Show success message
+          alert(`Payment successful! Lifetime access unlocked for ${plan.toUpperCase()}.`);
+          
+          // Redirect to dashboard
+          window.location.href = 'dashboard.html';
+        },
+        prefill: {
+          name: DB.session.name,
+          email: DB.session.email
+        },
+        theme: {
+          color: '#2563eb'
+        }
+      };
+      
+      const rzp = new Razorpay(options);
+      rzp.open();
+    });
+  });
+}
+
+// Contact form functionality
+function initContact() {
+  const contactForm = document.getElementById('contactForm');
+  const waBtn = document.getElementById('waBtn');
+  
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // In a real application, you would send this data to a server
+      // For this demo, we'll just show a success message
+      
+      alert('Thank you for your message! We will get back to you within 24 hours.');
+      contactForm.reset();
+    });
+  }
+  
+  // Prefill WhatsApp message if user is logged in
+  if (waBtn && DB.session) {
+    const userName = DB.session.name;
+    const message = `Hi, I'm ${userName}. I have a question about CA Mock Pro.`;
+    const encodedMessage = encodeURIComponent(message);
+    waBtn.href = `https://wa.me/919876543210?text=${encodedMessage}`;
+  }
+}
