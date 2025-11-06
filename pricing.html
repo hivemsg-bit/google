@@ -1,129 +1,19 @@
-<!-- ============================== pricing.html ============================== -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pricing • CA Mock Pro</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="app.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-</head>
-<body>
-  <header class="site-header">
-    <div class="container header-row">
-      <a class="brand" href="index.html">
-        <i class="fas fa-graduation-cap"></i>
-        CA Mock Pro
-      </a>
-      <nav>
-        <a href="tests.html">Tests</a>
-        <a href="dashboard.html">Dashboard</a>
-      </nav>
+<div class="payment-methods">
+    <div class="payment-option">
+        <h4>Pay via UPI</h4>
+        <div class="qr-code">
+            <!-- Apna UPI QR code yahan add karein -->
+            <img src="your-upi-qr-code.png" alt="Scan to Pay" width="200">
+        </div>
+        <p>Scan QR code with any UPI app</p>
+        <div class="upi-id">
+            <strong>UPI ID: yournumber@paytm</strong>
+            <button onclick="copyUPI()">Copy UPI ID</button>
+        </div>
+        <form class="payment-verification">
+            <label>After payment, enter UTR Number:</label>
+            <input type="text" id="utrNumber" placeholder="Enter UTR/Transaction ID">
+            <button type="button" onclick="verifyPayment()">Verify Payment</button>
+        </form>
     </div>
-  </header>
-
-  <section class="container pricing-page">
-    <div class="page-header text-center">
-      <h1>Lifetime Access Plans</h1>
-      <p>One-time payment, lifetime access to all current and future tests</p>
-    </div>
-    
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="card-header">
-          <h3>CA Foundation</h3>
-          <div class="price">
-            <span class="currency">₹</span>
-            <span id="pFound">1,499</span>
-          </div>
-          <div class="price-period">one-time payment</div>
-        </div>
-        <ul class="feature-list">
-          <li><i class="fas fa-check"></i> All Foundation mock tests</li>
-          <li><i class="fas fa-check"></i> 25-50 questions per test</li>
-          <li><i class="fas fa-check"></i> Instant evaluation & review</li>
-          <li><i class="fas fa-check"></i> Future updates included</li>
-          <li><i class="fas fa-check"></i> Mobile & offline access</li>
-        </ul>
-        <button class="btn btn-primary btn-block payBtn" data-plan="foundation">
-          <i class="fas fa-shopping-cart"></i>Buy Now
-        </button>
-      </div>
-
-      <div class="pricing-card popular">
-        <div class="popular-badge">Most Popular</div>
-        <div class="card-header">
-          <h3>CA Inter (Both Groups)</h3>
-          <div class="price">
-            <span class="currency">₹</span>
-            <span id="pInter">3,337</span>
-          </div>
-          <div class="price-period">one-time payment</div>
-        </div>
-        <ul class="feature-list">
-          <li><i class="fas fa-check"></i> Both groups + topic tests</li>
-          <li><i class="fas fa-check"></i> Advanced performance analytics</li>
-          <li><i class="fas fa-check"></i> Detailed answer explanations</li>
-          <li><i class="fas fa-check"></i> Time management tools</li>
-          <li><i class="fas fa-check"></i> Priority email support</li>
-        </ul>
-        <button class="btn btn-primary btn-block payBtn" data-plan="inter">
-          <i class="fas fa-shopping-cart"></i>Buy Now
-        </button>
-      </div>
-
-      <div class="pricing-card">
-        <div class="card-header">
-          <h3>CA Final</h3>
-          <div class="price">
-            <span class="currency">₹</span>
-            <span id="pFinal">2,574</span>
-          </div>
-          <div class="price-period">one-time payment</div>
-        </div>
-        <ul class="feature-list">
-          <li><i class="fas fa-check"></i> All Final subject tests</li>
-          <li><i class="fas fa-check"></i> Advanced difficulty levels</li>
-          <li><i class="fas fa-check"></i> Expert-curated questions</li>
-          <li><i class="fas fa-check"></i> Comparative analysis</li>
-          <li><i class="fas fa-check"></i> Dedicated support</li>
-        </ul>
-        <button class="btn btn-primary btn-block payBtn" data-plan="final">
-          <i class="fas fa-shopping-cart"></i>Buy Now
-        </button>
-      </div>
-    </div>
-
-    <div class="pricing-features">
-      <h3>All Plans Include</h3>
-      <div class="features-grid">
-        <div class="feature-item">
-          <i class="fas fa-sync"></i>
-          <h4>Lifetime Updates</h4>
-          <p>All future test updates included at no extra cost</p>
-        </div>
-        <div class="feature-item">
-          <i class="fas fa-mobile-alt"></i>
-          <h4>Mobile Friendly</h4>
-          <p>Access tests on any device, anytime</p>
-        </div>
-        <div class="feature-item">
-          <i class="fas fa-download"></i>
-          <h4>Offline Access</h4>
-          <p>Download tests for offline practice</p>
-        </div>
-        <div class="feature-item">
-          <i class="fas fa-chart-bar"></i>
-          <h4>Progress Tracking</h4>
-          <p>Monitor your improvement over time</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="pricing-footer">
-      <p class="muted small">Prices are approximately 25% lower than major CA test prep providers. For secure production billing, we recommend adding backend verification with Razorpay webhooks.</p>
-    </div>
-  </section>
-</body>
-</html>
+</div>
