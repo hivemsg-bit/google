@@ -1,54 +1,106 @@
+<!-- ============================== index.html ============================== -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CA Mock Test Series – Home</title>
+  <title>CA Mock Test Series - Master Your CA Exams</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
   <script defer src="app.js"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container header-row">
-      <a class="brand" href="index.html">CA Mock</a>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="tests.html">Tests</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="contact.html">Contact</a>
-        <a class="btn sm" href="login.html" id="navAuthBtn">Login</a>
+      <a class="brand" href="index.html">
+        <i class="fas fa-graduation-cap"></i>
+        CA Mock Pro
+      </a>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="tests.html" class="nav-link">Tests</a>
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a class="btn btn-primary btn-sm" href="login.html" id="navAuthBtn">
+          <i class="fas fa-sign-in-alt"></i>Login
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
       </nav>
     </div>
   </header>
 
   <section class="hero">
     <div class="container hero-grid">
-      <div>
-        <h1>Practice CA Foundation • Inter • Final</h1>
-        <p>Real exam-like mock tests with instant evaluation, explanations and a clean test interface. Lifetime access after one-time payment.</p>
+      <div class="hero-content">
+        <div class="badge">Trusted by 10,000+ CA Students</div>
+        <h1 class="hero-title">Master Your CA Exams with Confidence</h1>
+        <p class="hero-description">Real exam-like mock tests for CA Foundation, Inter & Final with instant evaluation, detailed explanations, and performance analytics.</p>
         <div class="cta-row">
-          <a class="btn" href="tests.html">Start a Free Demo Test</a>
-          <a class="btn outline" href="pricing.html">See Plans</a>
+          <a class="btn btn-primary btn-lg" href="tests.html">
+            <i class="fas fa-play-circle"></i>Start Free Demo Test
+          </a>
+          <a class="btn btn-outline btn-lg" href="pricing.html">
+            <i class="fas fa-crown"></i>Unlock Full Access
+          </a>
         </div>
-        <ul class="ticks">
-          <li>25–50 MCQs per test • Negative marking toggle</li>
-          <li>Auto score + Review incorrect answers</li>
-          <li>Mobile friendly • Works offline after first load</li>
-        </ul>
+        <div class="hero-features">
+          <div class="feature">
+            <i class="fas fa-check-circle"></i>
+            <span>25–50 MCQs per test • Negative marking</span>
+          </div>
+          <div class="feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Instant scoring & answer explanations</span>
+          </div>
+          <div class="feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Mobile friendly • Works offline</span>
+          </div>
+        </div>
       </div>
-      <div class="hero-card">
-        <div class="card">
-          <h3>Why students choose us</h3>
-          <ul class="tight">
-            <li>Latest ICAI-style pattern</li>
-            <li>Topic-wise & full-length mocks</li>
-            <li>Lifetime updates included</li>
-          </ul>
-          <a class="btn block" href="pricing.html">Unlock Lifetime Access</a>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="card card-elevated">
+            <h3><i class="fas fa-star"></i> Why Students Choose Us</h3>
+            <ul class="feature-list">
+              <li><i class="fas fa-bolt"></i> Latest ICAI-style pattern</li>
+              <li><i class="fas fa-chart-bar"></i> Topic-wise & full-length mocks</li>
+              <li><i class="fas fa-sync"></i> Lifetime updates included</li>
+              <li><i class="fas fa-clock"></i> Time management practice</li>
+            </ul>
+            <a class="btn btn-primary btn-block" href="pricing.html">
+              <i class="fas fa-rocket"></i>Get Lifetime Access
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-number">10,000+</div>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Mock Tests</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">15,000+</div>
+          <div class="stat-label">Students</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">94%</div>
+          <div class="stat-label">Success Rate</div>
         </div>
       </div>
     </div>
@@ -56,8 +108,24 @@
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <p>© <span id="yr"></span> CA Mock Test Series. All rights reserved.</p>
-      <div class="muted">Made for CA aspirants • India</div>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a class="brand" href="index.html">
+            <i class="fas fa-graduation-cap"></i>
+            CA Mock Pro
+          </a>
+          <p>Your trusted partner in CA exam preparation</p>
+        </div>
+        <div class="footer-links">
+          <a href="pricing.html">Pricing</a>
+          <a href="tests.html">Tests</a>
+          <a href="contact.html">Support</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© <span id="yr"></span> CA Mock Test Series. All rights reserved.</p>
+        <div class="muted">Made with ❤️ for CA aspirants • India</div>
+      </div>
     </div>
   </footer>
 </body>
