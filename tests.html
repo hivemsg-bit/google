@@ -1,9 +1,10 @@
+<!-- ============================== tests.html ============================== -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tests • CA Mock</title>
+  <title>Tests • CA Mock Pro</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="questions.sample.js"></script>
   <script defer src="app.js"></script>
@@ -11,7 +12,10 @@
 <body>
   <header class="site-header">
     <div class="container header-row">
-      <a class="brand" href="index.html">CA Mock</a>
+      <a class="brand" href="index.html">
+        <i class="fas fa-graduation-cap"></i>
+        CA Mock Pro
+      </a>
       <nav>
         <a href="dashboard.html">Dashboard</a>
         <a href="pricing.html">Pricing</a>
@@ -19,29 +23,71 @@
     </div>
   </header>
 
-  <section class="container">
-    <h2>Available Tests</h2>
-    <div class="tabs">
-      <button class="tab active" data-tab="foundation">Foundation</button>
-      <button class="tab" data-tab="inter">Inter</button>
-      <button class="tab" data-tab="final">Final</button>
+  <section class="container tests-page">
+    <div class="page-header">
+      <h1>Available Tests</h1>
+      <p>Select your level and start practicing with exam-like tests</p>
+    </div>
+    
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab active" data-tab="foundation">
+          <i class="fas fa-layer-group"></i>Foundation
+        </button>
+        <button class="tab" data-tab="inter">
+          <i class="fas fa-cube"></i>Inter
+        </button>
+        <button class="tab" data-tab="final">
+          <i class="fas fa-gem"></i>Final
+        </button>
+      </div>
     </div>
 
-    <div id="testList" class="grid3"></div>
+    <div id="testList" class="tests-grid"></div>
 
-    <hr/>
+    <div id="testRunner" class="test-runner hidden">
+      <div class="test-header">
+        <div class="test-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            Question <span id="currentQ">1</span> of <span id="totalQ">0</span>
+          </div>
+        </div>
+        <div class="test-timer">
+          <i class="fas fa-clock"></i>
+          <span id="timer">00:00</span>
+        </div>
+      </div>
 
-    <div id="testRunner" class="card hidden">
-      <div class="test-meta">
-        <h3 id="testTitle">Test</h3>
-        <div class="muted" id="testInfo">25 Questions • 1 mark each</div>
+      <div class="card card-elevated">
+        <div class="test-meta">
+          <h3 id="testTitle">Test</h3>
+          <div class="muted" id="testInfo">25 Questions • 1 mark each</div>
+        </div>
+        
+        <div id="qBox" class="questions-container"></div>
+        
+        <div class="test-navigation">
+          <button class="btn btn-outline" id="prevQ" disabled>
+            <i class="fas fa-arrow-left"></i>Previous
+          </button>
+          <button class="btn btn-outline" id="markReview">Mark for Review</button>
+          <button class="btn btn-primary" id="nextQ">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <div class="test-actions">
+          <button class="btn btn-danger" id="submitTest">
+            <i class="fas fa-paper-plane"></i>Submit Test
+          </button>
+          <button class="btn btn-outline" id="resetTest">
+            <i class="fas fa-redo"></i>Reset
+          </button>
+        </div>
+        
+        <div id="resultBox" class="test-results hidden"></div>
       </div>
-      <div id="qBox"></div>
-      <div class="test-actions">
-        <button class="btn" id="submitTest">Submit</button>
-        <button class="btn outline" id="resetTest">Reset</button>
-      </div>
-      <div id="resultBox" class="hidden"></div>
     </div>
   </section>
 </body>
