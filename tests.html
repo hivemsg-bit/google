@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tests • CA Mock</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="questions.sample.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="index.html">CA Mock</a>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="pricing.html">Pricing</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="container">
+    <h2>Available Tests</h2>
+    <div class="tabs">
+      <button class="tab active" data-tab="foundation">Foundation</button>
+      <button class="tab" data-tab="inter">Inter</button>
+      <button class="tab" data-tab="final">Final</button>
+    </div>
+
+    <div id="testList" class="grid3"></div>
+
+    <hr/>
+
+    <div id="testRunner" class="card hidden">
+      <div class="test-meta">
+        <h3 id="testTitle">Test</h3>
+        <div class="muted" id="testInfo">25 Questions • 1 mark each</div>
+      </div>
+      <div id="qBox"></div>
+      <div class="test-actions">
+        <button class="btn" id="submitTest">Submit</button>
+        <button class="btn outline" id="resetTest">Reset</button>
+      </div>
+      <div id="resultBox" class="hidden"></div>
+    </div>
+  </section>
+</body>
+</html>
