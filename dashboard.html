@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard • CA Mock</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="index.html">CA Mock</a>
+      <nav>
+        <a href="tests.html">Tests</a>
+        <a href="pricing.html">Pricing</a>
+        <button class="btn sm" id="logoutBtn">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="container">
+    <h2>Hello, <span id="userName">Student</span></h2>
+    <div class="grid3">
+      <div class="card">
+        <h3>Access</h3>
+        <p>Status: <strong id="accessStatus">Free</strong></p>
+        <p class="muted" id="accessNote">Buy a plan to unlock all tests (lifetime).</p>
+        <a class="btn" href="pricing.html">Upgrade</a>
+      </div>
+      <div class="card">
+        <h3>Your Scores</h3>
+        <ul id="scoreList" class="tight"></ul>
+      </div>
+      <div class="card">
+        <h3>Quick Start</h3>
+        <a class="btn block" href="tests.html">Start a Test</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
