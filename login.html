@@ -1,47 +1,73 @@
+<!-- ============================== login.html ============================== -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login • CA Mock</title>
+  <title>Login • CA Mock Pro</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="app.js"></script>
 </head>
-<body>
+<body class="auth-page">
   <header class="site-header">
     <div class="container header-row">
-      <a class="brand" href="index.html">CA Mock</a>
+      <a class="brand" href="index.html">
+        <i class="fas fa-graduation-cap"></i>
+        CA Mock Pro
+      </a>
     </div>
   </header>
 
   <section class="auth container narrow">
-    <div class="card">
-      <h2>Welcome back</h2>
-      <form id="loginForm" class="stack">
-        <label>Email
+    <div class="auth-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue your CA preparation</p>
+    </div>
+    
+    <div class="card card-elevated" id="loginCard">
+      <form id="loginForm" class="auth-form stack">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
           <input type="email" id="loginEmail" required placeholder="you@example.com" />
-        </label>
-        <label>Password
+          <div class="form-error" id="loginEmailError"></div>
+        </div>
+        <div class="form-group">
+          <label for="loginPass">Password</label>
           <input type="password" id="loginPass" required placeholder="••••••••" />
-        </label>
-        <button class="btn" type="submit">Login</button>
-        <p class="muted">New here? <a href="#" id="gotoSignup">Create an account</a></p>
+          <div class="form-error" id="loginPassError"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">
+          <i class="fas fa-sign-in-alt"></i>Sign In
+        </button>
+        <div class="auth-switch">
+          <p>New here? <a href="#" id="gotoSignup">Create an account</a></p>
+        </div>
       </form>
     </div>
 
-    <div class="card hidden" id="signupCard">
-      <h2>Create your account</h2>
-      <form id="signupForm" class="stack">
-        <label>Full Name
-          <input type="text" id="suName" required />
-        </label>
-        <label>Email
-          <input type="email" id="suEmail" required />
-        </label>
-        <label>Password
-          <input type="password" id="suPass" required minlength="6" />
-        </label>
-        <button class="btn" type="submit">Sign up</button>
+    <div class="card card-elevated hidden" id="signupCard">
+      <form id="signupForm" class="auth-form stack">
+        <div class="form-group">
+          <label for="suName">Full Name</label>
+          <input type="text" id="suName" required placeholder="Enter your full name" />
+          <div class="form-error" id="suNameError"></div>
+        </div>
+        <div class="form-group">
+          <label for="suEmail">Email Address</label>
+          <input type="email" id="suEmail" required placeholder="you@example.com" />
+          <div class="form-error" id="suEmailError"></div>
+        </div>
+        <div class="form-group">
+          <label for="suPass">Password</label>
+          <input type="password" id="suPass" required minlength="6" placeholder="Minimum 6 characters" />
+          <div class="form-error" id="suPassError"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">
+          <i class="fas fa-user-plus"></i>Create Account
+        </button>
+        <div class="auth-switch">
+          <p>Already have an account? <a href="#" id="gotoLogin">Sign in</a></p>
+        </div>
       </form>
     </div>
   </section>
