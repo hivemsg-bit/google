@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pricing • CA Mock</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="index.html">CA Mock</a>
+      <nav>
+        <a href="tests.html">Tests</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="container">
+    <h2>Lifetime Access Plans</h2>
+    <div class="grid3">
+      <div class="card">
+        <h3>Foundation – Lifetime</h3>
+        <p class="price"><span class="currency">₹</span><span id="pFound">1500</span></p>
+        <ul class="tight">
+          <li>All Foundation mocks (25–50 Qs)</li>
+          <li>Instant evaluation + review</li>
+          <li>Future updates free</li>
+        </ul>
+        <button class="btn payBtn" data-plan="foundation">Buy Now</button>
+      </div>
+
+      <div class="card">
+        <h3>Inter – Lifetime (Both Groups)</h3>
+        <p class="price"><span class="currency">₹</span><span id="pInter">3337</span></p>
+        <ul class="tight">
+          <li>Both groups + topic mocks</li>
+          <li>Instant evaluation + review</li>
+          <li>Future updates free</li>
+        </ul>
+        <button class="btn payBtn" data-plan="inter">Buy Now</button>
+      </div>
+
+      <div class="card popular">
+        <div class="badge">Most Popular</div>
+        <h3>Final – Lifetime</h3>
+        <p class="price"><span class="currency">₹</span><span id="pFinal">2574</span></p>
+        <ul class="tight">
+          <li>All Final subject mocks</li>
+          <li>Instant evaluation + review</li>
+          <li>Future updates free</li>
+        </ul>
+        <button class="btn payBtn" data-plan="final">Buy Now</button>
+      </div>
+    </div>
+
+    <p class="muted small">These prices are set ~25% lower than popular CA mock providers and include lifetime access. For secure production billing, add a backend + Razorpay webhooks.</p>
+  </section>
+</body>
+</html>
