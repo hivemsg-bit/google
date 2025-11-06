@@ -1,40 +1,91 @@
+<!-- ============================== dashboard.html ============================== -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard • CA Mock</title>
+  <title>Dashboard • CA Mock Pro</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="app.js"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container header-row">
-      <a class="brand" href="index.html">CA Mock</a>
+      <a class="brand" href="index.html">
+        <i class="fas fa-graduation-cap"></i>
+        CA Mock Pro
+      </a>
       <nav>
         <a href="tests.html">Tests</a>
         <a href="pricing.html">Pricing</a>
-        <button class="btn sm" id="logoutBtn">Logout</button>
+        <button class="btn btn-outline btn-sm" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>Logout
+        </button>
       </nav>
     </div>
   </header>
 
-  <section class="container">
-    <h2>Hello, <span id="userName">Student</span></h2>
+  <section class="container dashboard">
+    <div class="dashboard-header">
+      <h1>Hello, <span id="userName">Student</span>!</h1>
+      <p>Track your progress and continue your CA preparation</p>
+    </div>
+    
     <div class="grid3">
-      <div class="card">
-        <h3>Access</h3>
-        <p>Status: <strong id="accessStatus">Free</strong></p>
-        <p class="muted" id="accessNote">Buy a plan to unlock all tests (lifetime).</p>
-        <a class="btn" href="pricing.html">Upgrade</a>
+      <div class="card card-elevated">
+        <div class="card-header">
+          <h3><i class="fas fa-key"></i> Access Status</h3>
+        </div>
+        <div class="access-status">
+          <div class="status-badge" id="accessStatus">Free</div>
+          <p class="muted" id="accessNote">Upgrade to unlock all tests with lifetime access.</p>
+          <a class="btn btn-primary btn-block" href="pricing.html">
+            <i class="fas fa-crown"></i>Upgrade Plan
+          </a>
+        </div>
       </div>
-      <div class="card">
-        <h3>Your Scores</h3>
-        <ul id="scoreList" class="tight"></ul>
+      
+      <div class="card card-elevated">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-line"></i> Performance</h3>
+        </div>
+        <div class="performance-metrics">
+          <div class="metric">
+            <div class="metric-value" id="avgScore">0%</div>
+            <div class="metric-label">Average Score</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="testsTaken">0</div>
+            <div class="metric-label">Tests Completed</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Quick Start</h3>
-        <a class="btn block" href="tests.html">Start a Test</a>
+      
+      <div class="card card-elevated">
+        <div class="card-header">
+          <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+        </div>
+        <div class="quick-actions">
+          <a class="btn btn-primary btn-block" href="tests.html">
+            <i class="fas fa-play"></i>Start New Test
+          </a>
+          <a class="btn btn-outline btn-block" href="tests.html#foundation">
+            <i class="fas fa-book"></i>Practice Foundation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="recent-scores">
+      <h3>Recent Test Scores</h3>
+      <div class="card card-elevated">
+        <div class="scores-list" id="scoreList">
+          <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p>No test attempts yet</p>
+            <a href="tests.html" class="btn btn-primary">Take Your First Test</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
